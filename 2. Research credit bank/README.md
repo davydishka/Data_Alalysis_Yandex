@@ -36,6 +36,6 @@
 - purpose — цель получения кредита
 
 ## Используемые библиотеки
-|pandas|
-|seaborn| 
-|matplotlib|
+| pandas |
+| seaborn | 
+| matplotlib |
