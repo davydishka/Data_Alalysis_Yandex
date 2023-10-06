@@ -32,8 +32,8 @@ AND CAST(acquired_at AS date) BETWEEN '2011-01-01' AND '2013-12-31';
 
 ---
 SELECT first_name,\
-    last_name,\
-    twitter_username\
+----last_name,\
+----twitter_username\
 FROM people\
 WHERE twitter_username LIKE 'Silver%';
 
@@ -65,8 +65,8 @@ ORDER BY SUM(funding_total) DESC;
 
 ---
 SELECT funded_at,\
-    MIN(raised_amount),\
-    MAX(raised_amount)\
+----MIN(raised_amount),\
+----MAX(raised_amount)\
 FROM funding_round\
 GROUP BY funded_at\
 HAVING MIN(raised_amount) != 0 \
@@ -81,9 +81,9 @@ AND MIN(raised_amount) != MAX(raised_amount);
 ---
 SELECT *,\
 CASE\
-    WHEN invested_companies >= 100 THEN 'high_activity'\
-    WHEN invested_companies >= 20 AND invested_companies < 100 THEN 'middle_activity'\
-    WHEN invested_companies < 20 THEN 'low_activity'\
+----WHEN invested_companies >= 100 THEN 'high_activity'\
+----WHEN invested_companies >= 20 AND invested_companies < 100 THEN 'middle_activity'\
+----WHEN invested_companies < 20 THEN 'low_activity'\
 END\
 FROM fund;
 
@@ -94,18 +94,18 @@ FROM fund;
 
 ---
 SELECT \
-       CASE\
-           WHEN invested_companies>=100 THEN 'high_activity'\
-           WHEN invested_companies>=20 THEN 'middle_activity'\
-           ELSE 'low_activity'\
-       END AS activity,\
-       ROUND(AVG(investment_rounds)) AS avg_rounds\
+-------CASE\
+       ----WHEN invested_companies>=100 THEN 'high_activity'\
+       ----WHEN invested_companies>=20 THEN 'middle_activity'\
+       ----ELSE 'low_activity'\
+--------END AS activity,\
+--------ROUND(AVG(investment_rounds)) AS avg_rounds\
 FROM fund\
 GROUP BY CASE\
-           WHEN invested_companies>=100 THEN 'high_activity'\
-           WHEN invested_companies>=20 THEN 'middle_activity'\
-           ELSE 'low_activity'\
-       END\
+-----------WHEN invested_companies>=100 THEN 'high_activity'\
+-----------WHEN invested_companies>=20 THEN 'middle_activity'\
+-----------ELSE 'low_activity'\
+-------END\
 ORDER BY avg_rounds;
 
 ### 10. Проанализировать, в каких странах находятся фонды, которые чаще всего инвестируют в стартапы. 
@@ -117,9 +117,9 @@ ORDER BY avg_rounds;
 
 ---
 SELECT country_code,\
-    MIN(invested_companies),\
-    MAX(invested_companies),\
-    AVG(invested_companies)\
+----MIN(invested_companies),\
+----MAX(invested_companies),\
+----AVG(invested_companies)\
 FROM fund\
 WHERE CAST(founded_at AS date) BETWEEN '2010-01-01' AND '2012-12-31'\
 GROUP BY country_code\
@@ -132,8 +132,8 @@ LIMIT 10;
 
 ---
 SELECT p.first_name,\
-    p.last_name,\
-    e.instituition\
+----p.last_name,\
+----e.instituition\
 FROM people AS p\
 LEFT JOIN education AS e ON p.id=e.person_id;
 
@@ -143,7 +143,7 @@ LEFT JOIN education AS e ON p.id=e.person_id;
 
 ---
 SELECT c.name,\
-    COUNT(DISTINCT e.instituition) AS count_univ\
+----COUNT(DISTINCT e.instituition) AS count_univ\
 FROM company AS c\
 JOIN people AS p ON c.id=p.company_id\
 JOIN education AS e ON p.id=e.person_id\
@@ -181,7 +181,7 @@ GROUP BY c.id);
 
 ---
 SELECT DISTINCT p.id,\
-    e.instituition\
+----e.instituition\
 FROM people AS p\
 JOIN education AS e ON e.person_id=p.id\
 WHERE company_id IN (SELECT c.id\
@@ -197,7 +197,7 @@ GROUP BY c.id);
 
 ---
 SELECT DISTINCT p.id,\
-    COUNT(e.instituition)\
+----COUNT(e.instituition)\
 FROM people AS p\
 JOIN education AS e ON e.person_id=p.id\
 WHERE company_id IN \
@@ -217,7 +217,7 @@ GROUP BY p.id;
 WITH\
 s AS \
 (SELECT DISTINCT p.id,\
-    COUNT(e.instituition) AS inst\
+----COUNT(e.instituition) AS inst\
 FROM people AS p\
 JOIN education AS e ON e.person_id=p.id\
 WHERE company_id IN \
@@ -228,7 +228,7 @@ WHERE is_first_round = 1\
 AND is_last_round = 1\
 AND c.status = 'closed'\
 GROUP BY c.id)\
-GROUP BY p.id)\
+GROUP BY p.id)
 
 SELECT AVG(inst) \
 FROM s;
@@ -240,7 +240,7 @@ FROM s;
 WITH\
 s AS \
 (SELECT DISTINCT p.id,\
-    COUNT(e.instituition) AS inst\
+----COUNT(e.instituition) AS inst\
 FROM people AS p\
 JOIN education AS e ON e.person_id=p.id\
 WHERE company_id IN \
@@ -249,7 +249,7 @@ FROM company AS c\
 WHERE \
  c.name = 'Facebook'\
 GROUP BY c.id)\
-GROUP BY p.id)\
+GROUP BY p.id)
 
 SELECT AVG(inst) \
 FROM s;
@@ -324,22 +324,22 @@ AND f.raised_amount !=0;
 WITH\
 c1 AS\
 (SELECT EXTRACT(MONTH FROM CAST(fr.funded_at AS date)) AS month,\
-COUNT(DISTINCT f.name) AS fonds\
+COUNT(DISTINCT f.name) AS fonds
 
 FROM funding_round AS fr\
 LEFT JOIN investment AS i ON i.funding_round_id = fr.id\
-LEFT JOIN fund AS f ON f.id = i.fund_id\
+LEFT JOIN fund AS f ON f.id = i.fund_id
 
 WHERE CAST(fr.funded_at AS date) BETWEEN '2010-01-01' AND '2013-12-31'\
 AND f.country_code = 'USA'\
-GROUP BY month),\
+GROUP BY month),
 
 c2 AS (  SELECT EXTRACT(MONTH FROM acquired_at) AS month,\
     COUNT(acquired_company_id) AS companies,\
     SUM(price_amount) AS price\
     FROM acquisition\
         WHERE acquired_at BETWEEN '2010-01-01' AND '2013-12-31'\
-    GROUP BY month)\
+    GROUP BY month)
     
 SELECT c1.month,\
 c1.fonds,\
@@ -359,19 +359,19 @@ i2011 AS (SELECT country_code,\
     AVG(funding_total) AS sum_2011\
 FROM company\
 WHERE EXTRACT(YEAR FROM CAST(founded_at AS date)) = 2011\
-GROUP BY country_code),\
+GROUP BY country_code),
 
 i2012 AS (SELECT country_code,\
     AVG(funding_total) AS sum_2012\
 FROM company\
 WHERE EXTRACT(YEAR FROM CAST(founded_at AS date)) = 2012\
-GROUP BY country_code),\
+GROUP BY country_code),
 
 i2013 AS (SELECT country_code,\
     AVG(funding_total) AS sum_2013\
 FROM company\
 WHERE EXTRACT(YEAR FROM CAST(founded_at AS date)) = 2013\
-GROUP BY country_code)\
+GROUP BY country_code)
 
 SELECT \
 i2011.country_code,\
