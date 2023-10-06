@@ -47,8 +47,8 @@ WHERE twitter_username LIKE'%money%' \
 AND last_name LIKE 'K%';
 
 ### 6. Для каждой страны отобразить общую сумму привлечённых инвестиций, которые получили компании, 
-зарегистрированные в этой стране. 
-Страну, в которой зарегистрирована компания, можно определить по коду страны. 
+зарегистрированные в этой стране. \
+Страну, в которой зарегистрирована компания, можно определить по коду страны. \
 Отсортировать данные по убыванию суммы.
 
 ---
@@ -59,32 +59,32 @@ GROUP BY country_code\
 ORDER BY SUM(funding_total) DESC;
 
 ### 7. Составить таблицу, в которую войдёт дата проведения раунда, 
-а также минимальное и максимальное значения суммы инвестиций, привлечённых в эту дату.
-Оставить в итоговой таблице только те записи, в которых минимальное значение суммы инвестиций 
+а также минимальное и максимальное значения суммы инвестиций, привлечённых в эту дату.\
+Оставить в итоговой таблице только те записи, в которых минимальное значение суммы инвестиций \
 не равно нулю и не равно максимальному значению.
 
 ---
-SELECT funded_at,
-    MIN(raised_amount),
-    MAX(raised_amount)
-FROM funding_round
-GROUP BY funded_at
-HAVING MIN(raised_amount) != 0 
+SELECT funded_at,\
+    MIN(raised_amount),\
+    MAX(raised_amount)\
+FROM funding_round\
+GROUP BY funded_at\
+HAVING MIN(raised_amount) != 0 \
 AND MIN(raised_amount) != MAX(raised_amount);
 
---8. Создать поле с категориями:
---Для фондов, которые инвестируют в 100 и более компаний, назначить категорию high_activity.
---Для фондов, которые инвестируют в 20 и более компаний до 100, назначить категорию middle_activity.
---Если количество инвестируемых компаний фонда не достигает 20, назначить категорию low_activity.
---Отобразить все поля таблицы fund и новое поле с категориями.
+### 8. Создать поле с категориями:
+Для фондов, которые инвестируют в 100 и более компаний, назначить категорию high_activity.\
+Для фондов, которые инвестируют в 20 и более компаний до 100, назначить категорию middle_activity.\
+Если количество инвестируемых компаний фонда не достигает 20, назначить категорию low_activity.\
+Отобразить все поля таблицы fund и новое поле с категориями.
 
 ---
-SELECT *,
-CASE
-    WHEN invested_companies >= 100 THEN 'high_activity'
-    WHEN invested_companies >= 20 AND invested_companies < 100 THEN 'middle_activity'
-    WHEN invested_companies < 20 THEN 'low_activity'
-END
+SELECT *,\
+CASE\
+    WHEN invested_companies >= 100 THEN 'high_activity'\
+    WHEN invested_companies >= 20 AND invested_companies < 100 THEN 'middle_activity'\
+    WHEN invested_companies < 20 THEN 'low_activity'\
+END\
 FROM fund;
 
 --9. Для каждой из категорий, назначенных в предыдущем задании, посчитать округлённое 
