@@ -5,29 +5,29 @@
 ### 1. Сколько компаний закрылось.
 
 ---
-SELECT COUNT(status)
-FROM company
+SELECT COUNT(status)\
+FROM company\
 WHERE status = 'closed';
 
 ### 2. Отобразить количество привлечённых средств для новостных компаний США. 
 
 ---
-SELECT funding_total
-FROM company
-WHERE category_code='news'
-AND country_code = 'USA'
+SELECT funding_total \
+FROM company\
+WHERE category_code='news'\
+AND country_code = 'USA'\
 ORDER BY funding_total DESC;
 
-### 3. Найти общую сумму сделок по покупке одних компаний другими в долларах. 
-Отобрать сделки, которые осуществлялись только за наличные с 2011 по 2013 год включительно.
+### 3. Найти общую сумму сделок по покупке одних компаний другими в долларах. \
+### Отобрать сделки, которые осуществлялись только за наличные с 2011 по 2013 год включительно.
 
 ---
-SELECT SUM(price_amount)
-FROM acquisition
-WHERE term_code = 'cash'
+SELECT SUM(price_amount)\
+FROM acquisition\
+WHERE term_code = 'cash'\
 AND CAST(acquired_at AS date) BETWEEN '2011-01-01' AND '2013-12-31';
 
-### 4. Отобразите имя, фамилию и названия аккаунтов людей в твиттере, 
+### 4. Отобразите имя, фамилию и названия аккаунтов людей в твиттере, \
 ### у которых названия аккаунтов начинаются на 'Silver'.
 
 ---
