@@ -94,18 +94,18 @@ FROM fund;
 
 ---
 SELECT \
--------CASE\
-       ----WHEN invested_companies>=100 THEN 'high_activity'\
-       ----WHEN invested_companies>=20 THEN 'middle_activity'\
-       ----ELSE 'low_activity'\
---------END AS activity,\
---------ROUND(AVG(investment_rounds)) AS avg_rounds\
+CASE\
+----WHEN invested_companies>=100 THEN 'high_activity'\
+----WHEN invested_companies>=20 THEN 'middle_activity'\
+----ELSE 'low_activity'\
+END AS activity,\
+ROUND(AVG(investment_rounds)) AS avg_rounds\
 FROM fund\
 GROUP BY CASE\
------------WHEN invested_companies>=100 THEN 'high_activity'\
------------WHEN invested_companies>=20 THEN 'middle_activity'\
------------ELSE 'low_activity'\
--------END\
+----WHEN invested_companies>=100 THEN 'high_activity'\
+----WHEN invested_companies>=20 THEN 'middle_activity'\
+----ELSE 'low_activity'\
+END\
 ORDER BY avg_rounds;
 
 ### 10. Проанализировать, в каких странах находятся фонды, которые чаще всего инвестируют в стартапы. 
@@ -257,14 +257,15 @@ FROM s;
 ### 19. Составить таблицу из полей:
 - name_of_fund — название фонда;\
 - name_of_company — название компании;\
-- amount — сумма инвестиций, которую привлекла компания в раунде.\
+- amount — сумма инвестиций, которую привлекла компания в раунде.
+
 В таблицу войдут данные о компаниях, в истории которых было больше шести важных этапов, \
 а раунды финансирования проходили с 2012 по 2013 год включительно.
 
 ---
 SELECT f.name AS name_of_fund,\
-    c.name AS name_of_company,\
-    fr.raised_amount AS amount\
+----c.name AS name_of_company,\
+----fr.raised_amount AS amount\
 FROM investment AS i\
 LEFT JOIN company AS c ON c.id=i.company_id\
 LEFT JOIN fund AS f ON i.fund_id= f.id\
@@ -278,7 +279,8 @@ AND CAST(fr.funded_at AS date) BETWEEN '2012-01-01' AND '2013-12-31';\
 - название компании, которую купили;
 - сумма инвестиций, вложенных в купленную компанию;
 - доля, которая отображает, во сколько раз сумма покупки превысила сумму вложенных \
-в компанию инвестиций, округлённая до ближайшего целого числа.\
+в компанию инвестиций, округлённая до ближайшего целого числа.
+
 Не учитывать те сделки, в которых сумма покупки равна нулю. Если сумма инвестиций в компанию равна нулю, \
 исключить такую компанию из таблицы. \
 Отсортировать таблицу по сумме сделки от большей к меньшей, а затем по названию купленной компании \
@@ -286,11 +288,10 @@ AND CAST(fr.funded_at AS date) BETWEEN '2012-01-01' AND '2013-12-31';\
 
 ---
 SELECT c1.name AS buyer,\
-    a.price_amount AS sum_deal,\
-    c2.name AS startup,\
-    c2.funding_total AS sum_invest,\
-   -- ROUND(sum_deal/sum_invest) AS share\
-    ROUND(a.price_amount/c2.funding_total) AS share\
+----a.price_amount AS sum_deal,\
+----c2.name AS startup,\
+----c2.funding_total AS sum_invest,\
+----ROUND(a.price_amount/c2.funding_total) AS share\
 FROM acquisition AS a\
 INNER JOIN company AS c1 ON a.acquiring_company_id=c1.id\
 INNER JOIN company AS c2 ON a.acquired_company_id=c2.id\
@@ -305,7 +306,7 @@ LIMIT 10;
 
 ---
 SELECT c.name,\
-    EXTRACT(MONTH FROM CAST(f.funded_at AS date))\
+----EXTRACT(MONTH FROM CAST(f.funded_at AS date))\
 FROM company AS c\
 LEFT JOIN funding_round AS f ON c.id=f.company_id\
 WHERE c.category_code = 'social'\
@@ -335,16 +336,16 @@ AND f.country_code = 'USA'\
 GROUP BY month),
 
 c2 AS (  SELECT EXTRACT(MONTH FROM acquired_at) AS month,\
-    COUNT(acquired_company_id) AS companies,\
-    SUM(price_amount) AS price\
-    FROM acquisition\
-        WHERE acquired_at BETWEEN '2010-01-01' AND '2013-12-31'\
-    GROUP BY month)
+----COUNT(acquired_company_id) AS companies,\
+----SUM(price_amount) AS price\
+----FROM acquisition\
+--------WHERE acquired_at BETWEEN '2010-01-01' AND '2013-12-31'\
+----GROUP BY month)
     
 SELECT c1.month,\
-c1.fonds,\
-c2.companies,\
-c2.price\
+----c1.fonds,\
+----c2.companies,\
+----c2.price\
 FROM c1 FULL JOIN c2 ON c1.month=c2.month
 
 
@@ -356,28 +357,28 @@ FROM c1 FULL JOIN c2 ON c1.month=c2.month
 ---
 WITH\
 i2011 AS (SELECT country_code,\
-    AVG(funding_total) AS sum_2011\
+----AVG(funding_total) AS sum_2011\
 FROM company\
 WHERE EXTRACT(YEAR FROM CAST(founded_at AS date)) = 2011\
 GROUP BY country_code),
 
 i2012 AS (SELECT country_code,\
-    AVG(funding_total) AS sum_2012\
+----AVG(funding_total) AS sum_2012\
 FROM company\
 WHERE EXTRACT(YEAR FROM CAST(founded_at AS date)) = 2012\
 GROUP BY country_code),
 
 i2013 AS (SELECT country_code,\
-    AVG(funding_total) AS sum_2013\
+----AVG(funding_total) AS sum_2013\
 FROM company\
 WHERE EXTRACT(YEAR FROM CAST(founded_at AS date)) = 2013\
 GROUP BY country_code)
 
 SELECT \
 i2011.country_code,\
-  sum_2011,\
-    sum_2012,\
-    sum_2013\
+----sum_2011,\
+----sum_2012,\
+----sum_2013\
 FROM i2011\
 JOIN i2012 ON  i2011.country_code=i2012.country_code\
 JOIN i2013 ON  i2011.country_code=i2013.country_code\
