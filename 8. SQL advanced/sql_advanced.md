@@ -133,7 +133,7 @@ LIMIT 10;
 Отобразите несколько полей:
 - идентификатор пользователя;
 - число значков;
-- место в рейтинге — чем больше значков, тем выше рейтинг.
+- место в рейтинге — чем больше значков, тем выше рейтинг.\
 Пользователям, которые набрали одинаковое количество значков, присвойте одно и то же место в рейтинге.\
 Отсортируйте записи по количеству значков по убыванию, а затем по возрастанию значения идентификатора пользователя.
 
@@ -195,7 +195,7 @@ WHERE p.title IS NOT NULL;
 Разделите пользователей на три группы в зависимости от количества просмотров их профилей:
 - пользователям с числом просмотров больше либо равным 350 присвойте группу 1;
 - пользователям с числом просмотров меньше 350, но больше либо равно 100 — группу 2;
-- пользователям с числом просмотров меньше 100 — группу 3.
+- пользователям с числом просмотров меньше 100 — группу 3.\
 Отобразите в итоговой таблице идентификатор пользователя, количество просмотров профиля и группу. \
 Пользователи с нулевым количеством просмотров не должны войти в итоговую таблицу.
 
@@ -243,172 +243,168 @@ FROM usa\
 ORDER BY user_group, views DESC) AS rating\
 WHERE dense_rank = 1
 
-ORDER BY 2 DESC, 1 ASC\
+ORDER BY 2 DESC, 1 ASC
 
---12. Посчитайте ежедневный прирост новых пользователей в ноябре 2008 года. Сформируйте таблицу с полями:
--- номер дня;
--- число пользователей, зарегистрированных в этот день;
--- сумму пользователей с накоплением.
+## 12. Посчитайте ежедневный прирост новых пользователей в ноябре 2008 года. 
+Сформируйте таблицу с полями:
+- номер дня;
+- число пользователей, зарегистрированных в этот день;
+- сумму пользователей с накоплением.
 
 ---
-WITH c AS
-(SELECT EXTRACT(DAY FROM creation_date) as day_number,
-COUNT(id) us
-FROM stackoverflow.users
-WHERE creation_date::date BETWEEN '2008-11-01' AND '2008-11-30'
-GROUP BY day_number
+WITH c AS\
+(SELECT EXTRACT(DAY FROM creation_date) as day_number,\
+COUNT(id) us\
+FROM stackoverflow.users\
+WHERE creation_date::date BETWEEN '2008-11-01' AND '2008-11-30'\
+GROUP BY day_number\
 ORDER BY day_number)
 
-SELECT *,
-SUM(us) OVER( ORDER BY day_number)
+SELECT *,\
+SUM(us) OVER( ORDER BY day_number)\
 FROM c
 
---13. Для каждого пользователя, который написал хотя бы один пост, 
--- найдите интервал между регистрацией и временем создания первого поста. 
--- Отобразите:
--- идентификатор пользователя;
--- разницу во времени между регистрацией и первым постом.
+## 13. Для каждого пользователя, который написал хотя бы один пост, 
+найдите интервал между регистрацией и временем создания первого поста. \
+Отобразите:
+- идентификатор пользователя;
+- разницу во времени между регистрацией и первым постом.
 
 ---
-WITH dat AS
-(SELECT DISTINCT u.id,
-u.creation_date as reg,
-MIN(p.creation_date) as first_post
-FROM stackoverflow.users u
-JOIN stackoverflow.posts p ON p.user_id=u.id
+WITH dat AS\
+(SELECT DISTINCT u.id,\
+u.creation_date as reg,\
+MIN(p.creation_date) as first_post\
+FROM stackoverflow.users u\
+JOIN stackoverflow.posts p ON p.user_id=u.id\
 GROUP BY u.id, reg)
 
-SELECT dat.id,
-first_post - reg AS diff
+SELECT dat.id,\
+first_post - reg AS diff\
 FROM dat
 
---14. Выведите общую сумму просмотров постов за каждый месяц 2008 года. 
--- Если данных за какой-либо месяц в базе нет, такой месяц можно пропустить. 
--- Результат отсортируйте по убыванию общего количества просмотров.
+## 14. Выведите общую сумму просмотров постов за каждый месяц 2008 года. 
+Если данных за какой-либо месяц в базе нет, такой месяц можно пропустить.\ 
+Результат отсортируйте по убыванию общего количества просмотров.
 
 ---
-SELECT DATE_TRUNC('month', creation_date)::date as month, 
-SUM(views_count) as sum_views
-FROM stackoverflow.posts
-WHERE creation_date::date BETWEEN '2008-01-01' AND '2008-12-31'
-GROUP BY month
+SELECT DATE_TRUNC('month', creation_date)::date as month, \
+SUM(views_count) as sum_views\
+FROM stackoverflow.posts\
+WHERE creation_date::date BETWEEN '2008-01-01' AND '2008-12-31'\
+GROUP BY month\
 ORDER BY sum_views DESC
 
---15. Выведите имена самых активных пользователей, которые в первый месяц после регистрации 
--- (включая день регистрации) дали больше 100 ответов. Вопросы, которые задавали пользователи, не учитывайте. 
--- Для каждого имени пользователя выведите количество уникальных значений user_id. 
--- Отсортируйте результат по полю с именами в лексикографическом порядке.
+## 15. Выведите имена самых активных пользователей, которые в первый месяц после регистрации 
+(включая день регистрации) дали больше 100 ответов. Вопросы, которые задавали пользователи, не учитывайте. \
+Для каждого имени пользователя выведите количество уникальных значений user_id. \
+Отсортируйте результат по полю с именами в лексикографическом порядке.
 
 ---
-SELECT display_name as name,
-COUNT(DISTINCT u.id) as count_answer
-FROM stackoverflow.users u
-JOIN stackoverflow.posts p ON p.user_id=u.id
-JOIN stackoverflow.post_types pt ON pt.id=p.post_type_id
-WHERE pt.type = 'Answer'
-AND p.creation_date::date BETWEEN u.creation_date::date AND u.creation_date::date + INTERVAL '1 month'
-GROUP BY name
-HAVING COUNT(u.id) > 100
- ORDER BY name
+SELECT display_name as name,\
+COUNT(DISTINCT u.id) as count_answer\
+FROM stackoverflow.users u\
+JOIN stackoverflow.posts p ON p.user_id=u.id\
+JOIN stackoverflow.post_types pt ON pt.id=p.post_type_id\
+WHERE pt.type = 'Answer'\
+AND p.creation_date::date BETWEEN u.creation_date::date AND u.creation_date::date + INTERVAL '1 month'\
+GROUP BY name\
+HAVING COUNT(u.id) > 100\
+ORDER BY name
 
---16. Выведите количество постов за 2008 год по месяцам. 
--- Отберите посты от пользователей, которые зарегистрировались в сентябре 2008 года 
--- и сделали хотя бы один пост в декабре того же года. 
--- Отсортируйте таблицу по значению месяца по убыванию.
+## 16. Выведите количество постов за 2008 год по месяцам. 
+Отберите посты от пользователей, которые зарегистрировались в сентябре 2008 года \
+и сделали хотя бы один пост в декабре того же года. \
+Отсортируйте таблицу по значению месяца по убыванию.
 
 --- 
-WITH srez AS
-(
-SELECT DISTINCT u.id
---DATE_TRUNC('month', p.creation_date)::date as month
-FROM stackoverflow.users u 
-JOIN stackoverflow.posts p ON p.user_id=u.id
-WHERE u.creation_date::date BETWEEN '2008-09-01' AND '2008-09-30'
-AND (p.creation_date::date BETWEEN '2008-12-01' AND '2008-12-31')
+WITH srez AS\
+(\
+SELECT DISTINCT u.id\
+JOIN stackoverflow.posts p ON p.user_id=u.id\
+WHERE u.creation_date::date BETWEEN '2008-09-01' AND '2008-09-30'\
+AND (p.creation_date::date BETWEEN '2008-12-01' AND '2008-12-31')\
 )
 
-SELECT DATE_TRUNC('month', pp.creation_date)::date as month,
-COUNT(srez.id)
-FROM srez
-JOIN stackoverflow.posts pp ON pp.user_id=srez.id
-WHERE pp.creation_date::date BETWEEN '2008-01-01' AND '2008-12-31'
-GROUP BY month
+SELECT DATE_TRUNC('month', pp.creation_date)::date as month,\
+COUNT(srez.id)\
+FROM srez\
+JOIN stackoverflow.posts pp ON pp.user_id=srez.id\
+WHERE pp.creation_date::date BETWEEN '2008-01-01' AND '2008-12-31'\
+GROUP BY month\
 ORDER BY month DESC
 
-
---17. Используя данные о постах, выведите несколько полей:
--- идентификатор пользователя, который написал пост;
--- дата создания поста;
--- количество просмотров у текущего поста;
--- сумму просмотров постов автора с накоплением.
--- Данные в таблице должны быть отсортированы по возрастанию идентификаторов пользователей, 
--- а данные об одном и том же пользователе — по возрастанию даты создания поста.
+## 17. Используя данные о постах, выведите несколько полей:
+- идентификатор пользователя, который написал пост;
+- дата создания поста;
+- количество просмотров у текущего поста;
+- сумму просмотров постов автора с накоплением.\
+Данные в таблице должны быть отсортированы по возрастанию идентификаторов пользователей, \
+а данные об одном и том же пользователе — по возрастанию даты создания поста.
 
 ---
-SELECT user_id,
-creation_date,
-views_count,
-SUM(views_count) OVER(PARTITION BY user_id ORDER BY creation_date)
-FROM stackoverflow.posts
+SELECT user_id,\
+creation_date,\
+views_count,\
+SUM(views_count) OVER(PARTITION BY user_id ORDER BY creation_date)\
+FROM stackoverflow.posts\
 ORDER BY 1
 
---18. Сколько в среднем дней в период с 1 по 7 декабря 2008 года включительно пользователи взаимодействовали с платформой? 
--- Для каждого пользователя отберите дни, в которые он или она опубликовали хотя бы один пост. 
--- Нужно получить одно целое число — не забудьте округлить результат.
+## 18. Сколько в среднем дней в период с 1 по 7 декабря 2008 года включительно пользователи взаимодействовали с платформой? 
+Для каждого пользователя отберите дни, в которые он или она опубликовали хотя бы один пост. \
+Нужно получить одно целое число — не забудьте округлить результат.
 
 ---
-WITH action AS
-(
-SELECT user_id,
-    COUNT(DISTINCT creation_date::date) AS act_days
---creation_date::date,
---ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY creation_date::date)AS act_days
-FROM stackoverflow.posts
-WHERE creation_date::date BETWEEN '2008-12-01' AND '2008-12-07'
-GROUP BY 1
+WITH action AS\
+(\
+SELECT user_id,\
+COUNT(DISTINCT creation_date::date) AS act_days\
+FROM stackoverflow.posts\
+WHERE creation_date::date BETWEEN '2008-12-01' AND '2008-12-07'\
+GROUP BY 1\
 )
 
-SELECT ROUND(AVG(act_days))
+SELECT ROUND(AVG(act_days))\
 FROM action
 
---19. На сколько процентов менялось количество постов ежемесячно с 1 сентября по 31 декабря 2008 года? 
--- Отобразите таблицу со следующими полями:
--- номер месяца;
--- количество постов за месяц;
--- процент, который показывает, насколько изменилось количество постов в текущем месяце по сравнению с предыдущим.
--- Если постов стало меньше, значение процента должно быть отрицательным, если больше — положительным. 
--- Округлите значение процента до двух знаков после запятой.
+## 19. На сколько процентов менялось количество постов ежемесячно с 1 сентября по 31 декабря 2008 года? 
+Отобразите таблицу со следующими полями:
+- номер месяца;
+- количество постов за месяц;
+- процент, который показывает, насколько изменилось количество постов в текущем месяце по сравнению с предыдущим.\
+Если постов стало меньше, значение процента должно быть отрицательным, если больше — положительным. \
+Округлите значение процента до двух знаков после запятой.
 
 ---
-WITH post AS
-(
-SELECT EXTRACT(MONTH FROM creation_date) as month,
-COUNT(id) post_count
-FROM stackoverflow.posts
-WHERE creation_date::date BETWEEN '2008-09-01' AND '2008-12-31'
-GROUP BY month
+WITH post AS\
+(\
+SELECT EXTRACT(MONTH FROM creation_date) as month,\
+COUNT(id) post_count\
+FROM stackoverflow.posts\
+WHERE creation_date::date BETWEEN '2008-09-01' AND '2008-12-31'\
+GROUP BY month\
 )
 
-SELECT *,
-ROUND((post_count - LAG(post_count) OVER(ORDER BY month))::numeric * 100.0 / LAG(post_count) OVER(ORDER BY month), 2) AS share
+SELECT *,\
+ROUND((post_count - LAG(post_count) OVER(ORDER BY month))::numeric * 100.0 / LAG(post_count) OVER(ORDER BY month), 2) AS share\
 FROM post p
 
---20. Выгрузите данные активности пользователя, который опубликовал больше всего постов за всё время. 
--- Выведите данные за октябрь 2008 года в таком виде:
--- номер недели;
--- дата и время последнего поста, опубликованного на этой неделе.
+## 20. Выгрузите данные активности пользователя, который опубликовал больше всего постов за всё время. 
+Выведите данные за октябрь 2008 года в таком виде:
+- номер недели;
+- дата и время последнего поста, опубликованного на этой неделе.
 
 ---
-WITH act_user AS
-(SELECT DISTINCT user_id,
-COUNT(id) as post_count
-FROM stackoverflow.posts
-GROUP BY user_id
-ORDER BY post_count DESC
+WITH act_user AS\
+(SELECT DISTINCT user_id,\
+COUNT(id) as post_count\
+FROM stackoverflow.posts\
+GROUP BY user_id\
+ORDER BY post_count DESC\
 LIMIT 1)
 
-SELECT DISTINCT EXTRACT(WEEK FROM p.creation_date) as week_number,
-LAST_VALUE(p.creation_date) OVER(PARTITION BY EXTRACT(WEEK FROM p.creation_date::date) ORDER BY EXTRACT(WEEK FROM p.creation_date))
-FROM stackoverflow.posts p
-JOIN act_user u ON u.user_id=p.user_id
+SELECT DISTINCT EXTRACT(WEEK FROM p.creation_date) as week_number,\
+LAST_VALUE(p.creation_date) OVER(PARTITION BY EXTRACT(WEEK FROM p.creation_date::date) ORDER BY EXTRACT(WEEK FROM p.creation_date))\
+FROM stackoverflow.posts p\
+JOIN act_user u ON u.user_id=p.user_id\
 WHERE p.creation_date::date BETWEEN '2008-10-01' AND '2008-10-31'
