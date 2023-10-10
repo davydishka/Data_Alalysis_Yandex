@@ -16,3 +16,13 @@
 - product — наименование товара;
 - quantity — количество товара в заказе;
 - price — цена товара.
+
+## Используемые библиотеки:
+|pandas|
+| :------- |
+|matplotlib|
+|numpy|
+|seaborn|
+|datetime|
+|plotly|
+|scipy|
