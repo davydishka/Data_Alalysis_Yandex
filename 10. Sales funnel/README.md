@@ -25,13 +25,4 @@
 6. Общий вывод.
 
 ## Используемые библиотеки
-|pandas|
-|:------|
-|datetime|
-|numpy|
-|seaborn|
-|matplotlib|
-|plotly|
-|scipy|
-|stats|
-|math| 
+pandas, datetime, numpy, seaborn, matplotlib, plotly, scipy, stats, math. 
