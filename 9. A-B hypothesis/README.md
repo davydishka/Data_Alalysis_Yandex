@@ -39,9 +39,4 @@
 - visitors — количество пользователей в указанную дату в указанной группе A/B-теста.
 
 ## Используемые библиотеки
-|pandas|
-| :-------- |
-|datetime|
-|numpy|
-|matplotlib|
-|scipy|
+pandas, datetime, numpy, matplotlib, scipy.
