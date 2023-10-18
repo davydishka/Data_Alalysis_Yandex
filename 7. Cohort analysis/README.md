@@ -51,8 +51,4 @@
 - costs — расходы на эту кампанию.
 
 ## Используемые библиотеки
-|pandas|
-| :--------- |
-|numpy|
-|datetime|
-|matplotlib|
+pandas, numpy, datetime, matplotlib.
